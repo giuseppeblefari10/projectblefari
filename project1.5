@@ -1,0 +1,137 @@
+
+import random
+from dataclasses import dataclass
+import matplotlib.pyplot as plt
+
+#definizione della classe Prodotto con i relativi attributi
+@dataclass
+class Prodotto:
+    nome: str
+    quantita: int
+    tempo_produzione: int
+    capacita_produzione: int
+    def tempo_totale(self):
+        return self.quantita * self.tempo_produzione
+
+
+#funzione per generare un dizionario di prodotti con quantità casuali
+def generatore_prodotti(nomi_prodotti, q_minima, q_massima):
+    return {
+        nome: random.randint(q_minima, q_massima)  # Assegna una quantità casuale per ogni prodotto
+        for nome in nomi_prodotti
+    }
+
+
+def generatore_parametri(prodotti, t_minimo, t_massimo, c_minima, c_massima, c_complessiva):
+    parametri = {}  
+    capacita_totale = 0  
+
+    for prodotto in prodotti:
+        tempo = random.randint(t_minimo, t_massimo)
+        capacita = random.randint(c_minima, c_massima)
+        capacita_totale += capacita  
+
+       
+        if capacita_totale > c_complessiva:
+            capacita -= (capacita_totale - c_complessiva)
+            capacita_totale = c_complessiva  
+            if capacita < 0:
+                capacita = 0
+
+        parametri[prodotto] = {
+            'tempo_produzione': tempo,
+            'capacita_produzione': capacita
+        }
+    return parametri
+
+#funzione che calcola il tempo totale di produzione di tutti i prodotti
+def calcolo_tempo_produzione(lista_prodotti):
+    return sum(p.tempo_totale() for p in lista_prodotti)
+
+#funzione per stampare una tabella con i dettagli di produzione
+def stampa_tabella(lista_prodotti):
+    print("TABELLA GENERALE :\n")
+    print(f"{'Prodotto':<12} {'Quantità':<10} {'T. a unità':<15} {'Capacità':<10} {'Tempo totale':<15}")
+    print("-" * 65)
+    for p in lista_prodotti:
+        # Stampa i dettagli di ciascun prodotto
+        print(f"{p.nome:<12} {p.quantita:<10} {p.tempo_produzione:<15} {p.capacita_produzione:<10} {p.tempo_totale():<15}")
+    print("-" * 65)
+
+#funzione che generare i grafici dei dati di produzione
+def grafici(lista_prodotti):
+    nomi = [p.nome for p in lista_prodotti]
+    tempi = [p.tempo_totale() for p in lista_prodotti]
+    capacita = [p.capacita_produzione for p in lista_prodotti]
+    plt.figure(figsize=(10, 5))  # Crea una figura con dimensioni personalizzate
+
+    #grafico del tempo totale di produzione per ogni prodotto
+    plt.subplot(1, 2, 1)
+    plt.bar(nomi, tempi, color='blue')
+    plt.title("Tempo totale di produzione")
+    plt.xlabel("Prodotto")
+    plt.ylabel("Minuti")
+
+    # Secondo grafico: Capacità di produzione per ogni prodotto
+    plt.subplot(1, 2, 2)
+    plt.bar(nomi, capacita, color='lightgreen')
+    plt.title("Capacità assegnata")
+    plt.xlabel("Prodotto")
+    plt.ylabel("Unità")
+
+    plt.tight_layout()  # Ottimizza il layout per evitare sovrapposizioni
+    plt.show()  # Mostra i grafici
+
+#funzione principale
+def main():
+    prodotti = []
+    a = int(input("Inserisci un numero di prodotti (min. 3): "))
+    while a < 3:
+        a = int(input("Inserisci un numero di prodotti (min. 3): "))
+    else:
+        for numero in range(a):
+            prodotti.append("Prodotto " + str(numero + 1))
+
+    #parametri generali
+    quantità_minima = 50
+    quantità_massima = 200
+    tempo_minimo = 10
+    tempo_massimo = 60
+    capacità_minima = 20
+    capacità_massima = 100
+    capacita_complessiva = 250
+
+    #generatore quantità per ogni prodotto e parametri di produzione per ogni prodotto
+    quantita = generatore_prodotti(prodotti, quantità_minima, quantità_massima)
+    parametri = generatore_parametri(prodotti, tempo_minimo, tempo_massimo, capacità_minima, capacità_massima, capacita_complessiva)
+
+    # Crea Prodotto e aggiunge alla lista
+    lista_prodotti = []
+    for nome in prodotti:
+        p = Prodotto(
+            nome=nome,
+            quantita=quantita[nome],
+            tempo_produzione=parametri[nome]['tempo_produzione'],
+            capacita_produzione=parametri[nome]['capacita_produzione']
+        )
+        lista_prodotti.append(p)
+
+    #stampa la tabella totale
+    stampa_tabella(lista_prodotti)
+
+    #calcola il tempo complessivo di produzione
+    tempo_complessivo = calcolo_tempo_produzione(lista_prodotti)
+    giorni = int(tempo_complessivo / (8 * 60))  #converte il tempo totale in giorni lavorativi (8 ore al giorno)
+    print(f"\nTempo complessivo di produzione: {tempo_complessivo} minuti.")
+    print(f"Tempo complessivo in giorni da 8 ore lavorative: {giorni} giorni.")
+
+    #tempo supera 21 giorni viene convertito anche in mesi
+    if giorni > 21:
+        mesi = giorni / 21
+        print(f"Tempo complessivo corrispondente a circa {int(mesi)} mesi")
+
+    #mostra grafici
+    grafici(lista_prodotti)
+
+
+main()
