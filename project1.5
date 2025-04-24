@@ -72,15 +72,15 @@ def grafici(lista_prodotti):
     plt.xlabel("Prodotto")
     plt.ylabel("Minuti")
 
-    # Secondo grafico: Capacità di produzione per ogni prodotto
+    #secondo grafico: Capacità di produzione per ogni prodotto
     plt.subplot(1, 2, 2)
     plt.bar(nomi, capacita, color='lightgreen')
     plt.title("Capacità assegnata")
     plt.xlabel("Prodotto")
     plt.ylabel("Unità")
 
-    plt.tight_layout()  # Ottimizza il layout per evitare sovrapposizioni
-    plt.show()  # Mostra i grafici
+    plt.tight_layout()  #riduci le sovrapposizioni
+    plt.savefig("asd.jpg") #salva i grafici
 
 #funzione principale
 def main():
